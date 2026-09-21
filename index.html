@@ -3,449 +3,378 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GÖLGE OPERASYONU - Ghost Pulse Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <title>GÖLGE OPERASYONU: AKSİYON - Ghost Pulse Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+        * { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; user-select: none; }
         body {
             font-family: 'Rajdhani', sans-serif;
-            background-color: #020408;
-            color: #f3f4f6;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        #bg-canvas {
-            position: absolute;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            z-index: 0;
-        }
-
-        .game-viewport {
-            position: relative;
-            z-index: 1;
-            width: 100vw;
+            background: #000;
+            color: #fff;
             height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: flex-end;
+            justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
-        .content-box {
+        .game-container {
             position: relative;
-            max-width: 900px;
-            width: 95%;
-            margin-bottom: 20px;
-            padding: 22px;
-            background: rgba(10, 15, 26, 0.9);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 229, 255, 0.4);
-            border-radius: 16px;
-            box-shadow: 0 0 40px rgba(0, 229, 255, 0.2);
-            transition: transform 0.1s ease;
+            width: 100vw;
+            max-width: 800px;
+            height: 100vh;
+            max-height: 600px;
+            background: #050b14;
+            border: 2px solid #00e5ff;
+            box-shadow: 0 0 30px rgba(0,229,255,0.3);
+            display: flex;
+            flex-direction: column;
         }
 
-        .branding {
+        /* CANLI ANİMASYON EKRANI */
+        #gameCanvas {
+            width: 100%;
+            height: 65%;
+            background: #02050a;
+            display: block;
+        }
+
+        /* KONTROL VE ETKİLEŞİM ALANI */
+        .ui-panel {
+            height: 35%;
+            background: rgba(10, 16, 30, 0.95);
+            border-top: 2px solid #00e5ff;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+
+        .status-text {
             font-family: 'Orbitron', sans-serif;
-            font-size: 0.75rem;
-            letter-spacing: 2px;
+            font-size: 1rem;
             color: #00e5ff;
-            text-transform: uppercase;
-            margin-bottom: 4px;
-            text-shadow: 0 0 10px rgba(0,229,255,0.8);
+            text-shadow: 0 0 8px rgba(0,229,255,0.6);
         }
 
-        h1 {
+        .action-area {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* BTN STYLE */
+        .main-btn {
+            background: linear-gradient(135deg, #00e5ff, #0066ff);
+            color: #000;
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            color: #fff;
-            margin-bottom: 8px;
-            text-shadow: 0 0 15px rgba(255,255,255,0.5);
-        }
-
-        .story-text {
+            font-weight: 900;
             font-size: 1.1rem;
-            line-height: 1.4;
-            margin-bottom: 15px;
-            color: #cbd5e1;
-            font-weight: 600;
-        }
-
-        .options-container { display: flex; flex-direction: column; gap: 10px; }
-
-        .btn {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(0, 229, 255, 0.5);
-            color: #00e5ff;
-            padding: 14px 18px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.9rem;
+            padding: 14px 28px;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s ease;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .btn:active {
-            background: rgba(0, 229, 255, 0.3);
-            transform: scale(0.98);
-        }
-
-        .btn-start {
-            font-size: 1.1rem;
-            justify-content: center;
-            background: linear-gradient(135deg, #00e5ff 0%, #0066ff 100%);
-            color: #000;
-            font-weight: 900;
-            border: none;
-            box-shadow: 0 0 25px rgba(0, 229, 255, 0.6);
-        }
-
-        .interactive-zone {
-            position: relative;
-            width: 100%;
-            height: 220px;
-            margin: 10px 0;
-            background: #040812;
-            border: 2px solid rgba(0, 229, 255, 0.4);
-            border-radius: 12px;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        /* VİDA DÖNDÜRME (MOBİL & MOUSE UYUMLU) */
-        .screw-assembly { display: flex; gap: 30px; }
-        .screw-wrap { text-align: center; }
-        .screw-3d {
-            width: 65px; height: 65px;
-            background: radial-gradient(circle, #94a3b8 30%, #334155 80%);
-            border-radius: 50%; border: 4px solid #00e5ff;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 28px; color: #0f172a; font-weight: bold;
-            box-shadow: 0 0 15px rgba(0,229,255,0.4);
-        }
-
-        /* DOKUNMATİK KOMBAT BUTONLARI */
-        .combo-box { display: flex; gap: 12px; }
-        .key-badge {
-            width: 70px; height: 60px;
-            background: rgba(0, 229, 255, 0.1);
-            border: 2px solid #00e5ff;
-            color: #00e5ff; font-family: 'Orbitron', sans-serif;
-            font-size: 1rem; font-weight: 900;
-            display: flex; align-items: center; justify-content: center;
-            border-radius: 10px; box-shadow: 0 0 15px rgba(0,229,255,0.3);
-            cursor: pointer;
-        }
-        .key-badge.active { background: #00e5ff; color: #000; box-shadow: 0 0 25px #00e5ff; transform: scale(1.05); }
-
-        /* MATRİS HACK */
-        .matrix-stream {
-            position: absolute; width: 100%; height: 100%;
-            display: flex; justify-content: space-around;
-            font-family: monospace; font-size: 1.1rem; color: #22c55e;
-            opacity: 0.5; pointer-events: none;
-        }
-        .data-node {
-            padding: 12px 20px; background: #00e5ff; color: #000;
-            font-family: 'Orbitron', sans-serif; font-weight: 900;
-            border-radius: 8px; cursor: pointer; z-index: 5;
             box-shadow: 0 0 20px #00e5ff;
         }
+        .main-btn:active { transform: scale(0.95); }
 
-        /* NİŞANGAH / HEDEF */
-        .nv-scope {
-            width: 100%; height: 100%;
-            background: rgba(0, 255, 100, 0.1);
-            border: 2px solid #22c55e;
-            position: relative;
+        /* MİNİ OYUN 1: ZAMANLAMA BARI */
+        .timing-bar-bg {
+            width: 80%; height: 30px; background: #1e293b;
+            border: 2px solid #00e5ff; border-radius: 15px;
+            position: relative; overflow: hidden; cursor: pointer;
         }
-        .enemy-target {
-            position: absolute; width: 50px; height: 50px;
-            background: rgba(239, 68, 68, 0.9); border-radius: 50%;
-            border: 2px solid #fff; box-shadow: 0 0 20px #ef4444;
-            cursor: pointer;
+        .timing-zone {
+            position: absolute; top: 0; height: 100%; width: 20%;
+            background: #22c55e; left: 40%; box-shadow: 0 0 15px #22c55e;
+        }
+        .timing-pointer {
+            position: absolute; top: 0; width: 6px; height: 100%;
+            background: #ef4444; box-shadow: 0 0 10px #ef4444;
         }
 
-        /* ŞARJLI VURUŞ */
-        .charge-bar-bg { width: 85%; height: 26px; background: #1e293b; border-radius: 13px; border: 2px solid #00e5ff; overflow: hidden; }
-        .charge-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, #00e5ff, #ef4444); }
+        /* MİNİ OYUN 2: HIZLI DOKUNMA TARGET */
+        .qte-target {
+            width: 70px; height: 70px;
+            background: rgba(239, 68, 68, 0.8);
+            border: 3px solid #fff; border-radius: 50%;
+            position: absolute; cursor: pointer;
+            box-shadow: 0 0 25px #ef4444;
+            display: flex; justify-content: center; align-items: center;
+            font-family: 'Orbitron', sans-serif; font-weight: bold;
+            animation: pulseTarget 0.4s infinite alternate;
+        }
+
+        /* MİNİ OYUN 3: HAFIZA BUTONLARI */
+        .memory-grid { display: flex; gap: 15px; }
+        .mem-btn {
+            width: 60px; height: 60px; border-radius: 10px; border: 2px solid #fff;
+            cursor: pointer; opacity: 0.5; transition: opacity 0.1s;
+        }
+        .mem-btn.active { opacity: 1; transform: scale(1.1); box-shadow: 0 0 20px #fff; }
+
+        @keyframes pulseTarget { from { transform: scale(0.9); } to { transform: scale(1.1); } }
     </style>
 </head>
 <body>
 
-<canvas id="bg-canvas"></canvas>
-
-<div class="game-viewport">
-    <div class="content-box" id="main-box">
-        <div class="branding">Yapımcı: Özgür GÖK | Ghost Pulse Studio</div>
-        <h1 id="title">GÖLGE OPERASYONU</h1>
-        <div class="story-text" id="story">Yükleniyor...</div>
-        <div id="interactive-area"></div>
-        <div class="options-container" id="options"></div>
+<div class="game-container">
+    <canvas id="gameCanvas"></canvas>
+    
+    <div class="ui-panel">
+        <div class="status-text" id="statusText">GÖLGE OPERASYONU: BAŞLAMAK İÇİN BUTONA BAS</div>
+        <div class="action-area" id="actionArea">
+            <button class="main-btn" onclick="nextStage()">OPERASYONU BAŞLAT</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const canvas = document.getElementById("bg-canvas");
+    const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
-    let width, height, particles = [];
-
-    function resizeCanvas() {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
+    
+    function resize() {
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
     }
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    resize();
+    window.addEventListener("resize", resize);
 
-    for(let i = 0; i < 60; i++) {
-        particles.push({
-            x: Math.random() * width,
-            y: Math.random() * height,
-            length: Math.random() * 15 + 10,
-            speed: Math.random() * 8 + 4,
-            color: Math.random() > 0.5 ? "rgba(0, 229, 255, 0.35)" : "rgba(0, 102, 255, 0.15)"
-        });
-    }
+    /* OYUN DURUMU & KARAKTER ANİMASYONU */
+    let stage = 0; // 0: Start, 1: Havalandırma, 2: Dövüş, 3: Hack, 4: Kaçış/Cam
+    let player = { x: 50, y: 180, state: 'idle', frame: 0 };
+    let enemy = { x: 280, y: 180, state: 'idle', alive: true };
+    let vent = { x: 50, y: 80, open: false };
+    let particles = [];
 
-    function renderCanvas() {
-        ctx.fillStyle = "rgba(2, 4, 8, 0.3)";
-        ctx.fillRect(0, 0, width, height);
+    /* CANVAS ÇİZİM MOTORU */
+    function drawGame() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        particles.forEach(p => {
-            ctx.beginPath();
-            ctx.strokeStyle = p.color;
-            ctx.lineWidth = 2;
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p.x, p.y + p.length);
-            ctx.stroke();
-            p.y += p.speed;
-            if(p.y > height) { p.y = -20; p.x = Math.random() * width; }
-        });
-        requestAnimationFrame(renderCanvas);
-    }
-    renderCanvas();
-
-    function triggerScreenShake() {
-        const box = document.getElementById("main-box");
-        box.style.transform = "translate(" + (Math.random()*12 - 6) + "px, " + (Math.random()*12 - 6) + "px)";
-        setTimeout(() => box.style.transform = "translate(0,0)", 90);
-    }
-
-    let comboStep = 0;
-    const comboActions = ["DARBE 1", "TEKME", "HAMLE"];
-    let screwRotations = [0, 0];
-    let enemiesLeft = 2;
-
-    const storyData = {
-        intro: {
-            title: "GÖLGE OPERASYONU",
-            text: "Kod Adı: Hayalet. Bilgisayardan veya telefondan tamamen dokunarak/tıklayarak yönetebileceğin yeninesil sızma simülasyonu başlıyor.",
-            type: "start"
-        },
-        stage1: {
-            title: "AŞAMA 1: SIZMA ROTALARI",
-            text: "Gökdelenin dışındasın. Sızma metodunu seç:",
-            options: [
-                { text: "Havalandırma Izgarası (Vidaları Döndür)", action: "act_screws" },
-                { text: "Nöbetçiyi Hak Et (Dokunmatik Kombo)", action: "act_combo" }
-            ]
-        },
-        stage2: {
-            title: "AŞAMA 2: GÜVENLİK SİSTEMİ",
-            text: "İçeridesin. Lazer ağları ve ana koridor karşında.",
-            options: [
-                { text: "Terminal Veri Paketini Yakala", action: "act_hack" },
-                { text: "Gece Görüşü ile Nöbetçileri Vur", action: "act_nv" }
-            ]
-        },
-        stage3: {
-            title: "AŞAMA 3: HEDEF VE BELGELER",
-            text: "Lord Vane'in odasındasın. Şifreli çip kasada duruyor.",
-            options: [
-                { text: "Kasayı Zorla ve Çipi Al", action: "act_safe" },
-                { text: "Doğrudan Çıkışa Yönel", action: "go_escape" }
-            ]
-        },
-        stage4: {
-            title: "AŞAMA 4: DİNAMİK KAÇIŞ",
-            text: "Bina alarmda! Kaçış rotan:",
-            options: [
-                { text: "Çatı Helikopterine Koş", action: "win_game" },
-                { text: "Camı Şarjlı Vuruşla Patlat", action: "act_glass" }
-            ]
-        },
-        win: {
-            title: "GÖREV BAŞARILI",
-            text: "Tüm sistemler başarıyla atlatıldı. Hayalet iz bırakmadan kayboldu. Ghost Pulse Studio!",
-            options: [{ text: "Yeniden Oyna", action: "restart" }]
-        }
-    };
-
-    function renderScreen(key) {
-        const data = storyData[key];
-        document.getElementById("title").textContent = data.title;
-        document.getElementById("story").textContent = data.text;
-        document.getElementById("interactive-area").innerHTML = "";
+        // Arka Plan Dekorasyon (Siber Bina)
+        ctx.fillStyle = "#0a1224";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        const optDiv = document.getElementById("options");
-        optDiv.innerHTML = "";
+        // Zemin
+        ctx.fillStyle = "#1e293b";
+        ctx.fillRect(0, 220, canvas.width, 40);
+        ctx.fillStyle = "#00e5ff";
+        ctx.fillRect(0, 220, canvas.width, 2);
 
-        if (data.type === "start") {
-            const btn = document.createElement("button");
-            btn.className = "btn btn-start";
-            btn.textContent = "OPERASYONU BAŞLAT";
-            btn.onclick = () => renderScreen("stage1");
-            optDiv.appendChild(btn);
+        // Havalandırma Kapağı Çizimi
+        ctx.fillStyle = vent.open ? "#050b14" : "#475569";
+        ctx.fillRect(vent.x, vent.y, 40, 50);
+        ctx.strokeStyle = "#00e5ff";
+        ctx.strokeRect(vent.x, vent.y, 40, 50);
+
+        // Karakter Çizimi (Aksiyon Durumlarına Göre)
+        drawPlayer();
+
+        // Düşman Çizimi
+        if (enemy.alive && stage >= 2) {
+            drawEnemy();
+        }
+
+        // Parçacık Efektleri (Vuruş/Kıvılcım)
+        particles.forEach((p, index) => {
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+            p.x += p.vx;
+            p.y += p.vy;
+            p.size *= 0.95;
+            if (p.size < 0.5) particles.splice(index, 1);
+        });
+
+        requestAnimationFrame(drawGame);
+    }
+
+    function drawPlayer() {
+        ctx.save();
+        ctx.translate(player.x, player.y);
+
+        // Gövde (Siyah Ajan Kostümü)
+        ctx.fillStyle = "#00e5ff";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = "#00e5ff";
+
+        if (player.state === 'idle') {
+            // Durma
+            ctx.fillRect(-10, -40, 20, 35); // Beden
+            ctx.beginPath(); ctx.arc(0, -48, 8, 0, Math.PI*2); ctx.fill(); // Kafası
+        } 
+        else if (player.state === 'climbing') {
+            // Havalandırmaya Tırmanma
+            ctx.fillRect(-10, -50, 20, 35);
+            ctx.beginPath(); ctx.arc(0, -58, 8, 0, Math.PI*2); ctx.fill();
+            // Kol uzatma
+            ctx.fillRect(-15, -65, 8, 20);
+        }
+        else if (player.state === 'punching') {
+            // Yumruk Atma
+            ctx.fillRect(-10, -40, 20, 35);
+            ctx.beginPath(); ctx.arc(0, -48, 8, 0, Math.PI*2); ctx.fill();
+            ctx.fillRect(10, -35, 25, 8); // İleri Uzanan Yumruk
+        }
+
+        ctx.restore();
+    }
+
+    function drawEnemy() {
+        ctx.save();
+        ctx.translate(enemy.x, enemy.y);
+        ctx.fillStyle = enemy.state === 'hit' ? "#ef4444" : "#f59e0b";
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = enemy.fillStyle;
+
+        ctx.fillRect(-10, -40, 20, 35);
+        ctx.beginPath(); ctx.arc(0, -48, 8, 0, Math.PI*2); ctx.fill();
+        ctx.restore();
+    }
+
+    function createParticles(x, y, color) {
+        for(let i=0; i<15; i++) {
+            particles.push({
+                x: x, y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                size: Math.random() * 5 + 2,
+                color: color
+            });
+        }
+    }
+
+    /* OYUN AKIŞI VE ZOR ETKİLEŞİMLER */
+    function nextStage() {
+        stage++;
+        const area = document.getElementById("actionArea");
+        const status = document.getElementById("statusText");
+
+        if (stage === 1) {
+            status.textContent = "AŞAMA 1: HAVALANDIRMA SÖKME! İŞARETÇİ YEŞİL BÖLGEDEYKEN DOKUN!";
+            setupTimingGame();
+        } 
+        else if (stage === 2) {
+            status.textContent = "AŞAMA 2: YAKIN DÖVÜŞ! ÇIKAN HEDEFE 1 SANİYE İÇİNDE TIKLA!";
+            setupQTEGame();
+        }
+        else if (stage === 3) {
+            status.textContent = "AŞAMA 3: KOD HACKLEME! YANAN RENK SİSİTEMİNİ AKLINDA TUT VE BASS!";
+            setupMemoryGame();
+        }
+        else if (stage === 4) {
+            status.textContent = "GÖREV BAŞARILI! AKSİYON TAMAMLANDI!";
+            area.innerHTML = `<button class="main-btn" onclick="location.reload()">TEKRAR OYNA</button>`;
+        }
+    }
+
+    /* ETKİLEŞİM 1: HASSAS ZAMANLAMA BARI */
+    let pointerPos = 0, pointerSpeed = 3, timingInterval;
+    function setupTimingGame() {
+        const area = document.getElementById("actionArea");
+        area.innerHTML = `
+            <div class="timing-bar-bg" onclick="checkTiming()">
+                <div class="timing-zone"></div>
+                <div class="timing-pointer" id="pointer"></div>
+            </div>`;
+        
+        pointerPos = 0;
+        timingInterval = setInterval(() => {
+            pointerPos += pointerSpeed;
+            if (pointerPos > 98 || pointerPos < 0) pointerSpeed *= -1;
+            document.getElementById("pointer").style.left = pointerPos + "%";
+        }, 15);
+    }
+
+    function checkTiming() {
+        if (pointerPos >= 40 && pointerPos <= 60) {
+            clearInterval(timingInterval);
+            vent.open = true;
+            player.state = 'climbing';
+            player.y = 130;
+            createParticles(70, 100, "#00e5ff");
+            document.getElementById("statusText").textContent = "MÜKEMMEL! HAVALANDIRMA SÖKÜLDÜ.";
+            setTimeout(nextStage, 1500);
+        } else {
+            document.getElementById("statusText").textContent = "ISKALADIN! DİKKATLİ ZAMANLA!";
+            pointerSpeed = pointerSpeed > 0 ? 5 : -5; // Hızlandır
+        }
+    }
+
+    /* ETKİLEŞİM 2: REFLEKS DÖVÜŞÜ (QTE) */
+    function setupQTEGame() {
+        player.x = 220;
+        player.y = 180;
+        player.state = 'idle';
+        const area = document.getElementById("actionArea");
+        area.innerHTML = "";
+
+        const target = document.createElement("div");
+        target.className = "qte-target";
+        target.textContent = "VUR!";
+        target.style.left = (Math.random() * 50 + 25) + "%";
+        target.onclick = () => {
+            player.state = 'punching';
+            enemy.state = 'hit';
+            createParticles(280, 150, "#ef4444");
+            document.getElementById("statusText").textContent = "KRİTİK VURUŞ! KORUMA TAVAN YAPTI.";
+            setTimeout(() => {
+                enemy.alive = false;
+                nextStage();
+            }, 1200);
+        };
+        area.appendChild(target);
+    }
+
+    /* ETKİLEŞİM 3: HAFIZA / KOD DİZİLİMİ */
+    const sequence = [0, 2, 1];
+    let userSeq = [];
+    function setupMemoryGame() {
+        player.state = 'idle';
+        const area = document.getElementById("actionArea");
+        area.innerHTML = `
+            <div class="memory-grid">
+                <div class="mem-btn" style="background:#ef4444" onclick="pressMem(0)"></div>
+                <div class="mem-btn" style="background:#22c55e" onclick="pressMem(1)"></div>
+                <div class="mem-btn" style="background:#00e5ff" onclick="pressMem(2)"></div>
+            </div>`;
+        playSequence();
+    }
+
+    function playSequence() {
+        const btns = document.querySelectorAll(".mem-btn");
+        sequence.forEach((colorIdx, i) => {
+            setTimeout(() => {
+                btns[colorIdx].classList.add("active");
+                setTimeout(() => btns[colorIdx].classList.remove("active"), 300);
+            }, (i + 1) * 600);
+        });
+    }
+
+    function pressMem(idx) {
+        userSeq.push(idx);
+        if (userSeq[userSeq.length - 1] !== sequence[userSeq.length - 1]) {
+            document.getElementById("statusText").textContent = "HATALI KOD! TEKRAR İZLE!";
+            userSeq = [];
+            playSequence();
             return;
         }
-
-        data.options.forEach(opt => {
-            const btn = document.createElement("button");
-            btn.className = "btn";
-            btn.innerHTML = `<span>${opt.text}</span> <span>➢</span>`;
-            btn.onclick = () => handleAction(opt.action);
-            optDiv.appendChild(btn);
-        });
-    }
-
-    function handleAction(act) {
-        const area = document.getElementById("interactive-area");
-        document.getElementById("options").innerHTML = "";
-
-        if (act === "act_screws") {
-            document.getElementById("story").textContent = "ETKİLEŞİM: Vidaların üzerine üst üste dokunarak/tıklayarak vidaları tamamen sök!";
-            screwRotations = [0, 0];
-            area.innerHTML = `
-                <div class="screw-assembly">
-                    <div class="screw-wrap">
-                        <div class="screw-3d" id="sc1" onclick="rotateScrew(0)">+</div>
-                    </div>
-                    <div class="screw-wrap">
-                        <div class="screw-3d" id="sc2" onclick="rotateScrew(1)">+</div>
-                    </div>
-                </div>`;
-        }
-        else if (act === "act_combo") {
-            comboStep = 0;
-            document.getElementById("story").textContent = "ETKİLEŞİM: Aktif olan dokunmatik kombo tuşuna sırasıyla bas!";
-            area.innerHTML = `
-                <div class="combo-box">
-                    <div class="key-badge active" id="k0" onclick="pressCombo(0)">DARBE</div>
-                    <div class="key-badge" id="k1" onclick="pressCombo(1)">TEKME</div>
-                    <div class="key-badge" id="k2" onclick="pressCombo(2)">BİTİR</div>
-                </div>`;
-        }
-        else if (act === "act_hack") {
-            document.getElementById("story").textContent = "ETKİLEŞİM: Akan kodlar içindeki MAVİ VERİ PAKETİNE dokun!";
-            area.innerHTML = `
-                <div class="interactive-zone">
-                    <div class="matrix-stream">
-                        <span>01010101<br>10101010</span>
-                        <span>11001100<br>11100011</span>
-                    </div>
-                    <div class="data-node" onclick="triggerScreenShake(); renderScreen('stage3');">VERİ_PAKETİ</div>
-                </div>`;
-        }
-        else if (act === "act_nv") {
-            enemiesLeft = 2;
-            document.getElementById("story").textContent = "ETKİLEŞİM: Kırmızı noktalara dokunarak nöbetçileri etkisiz hale getir!";
-            area.innerHTML = `
-                <div class="interactive-zone">
-                    <div class="nv-scope">
-                        <div class="enemy-target" style="top:30px; left:60px;" onclick="shootTarget(this)"></div>
-                        <div class="enemy-target" style="top:100px; right:70px;" onclick="shootTarget(this)"></div>
-                    </div>
-                </div>`;
-        }
-        else if (act === "act_safe") {
-            document.getElementById("story").textContent = "ETKİLEŞİM: Şifreli çip kasadan alındı.";
-            area.innerHTML = `<button class="btn btn-start" style="width:100%;" onclick="renderScreen('stage4')">DEVAM ET</button>`;
-        }
-        else if (act === "act_glass") {
-            document.getElementById("story").textContent = "ETKİLEŞİM: Ekrana PARMAĞINLA/FAREYLE BASILI TUT, dolunca bırakıp camı kır!";
-            area.innerHTML = `
-                <div class="interactive-zone" style="flex-direction:column; gap:12px;" 
-                     onmousedown="startCharge()" onmouseup="releaseCharge()" 
-                     ontouchstart="startCharge()" ontouchend="releaseCharge()">
-                    <div class="charge-bar-bg"><div class="charge-bar-fill" id="c-fill"></div></div>
-                    <div style="font-weight:bold; color:#00e5ff; font-size:0.9rem;">BASILI TUT VE BIRAK</div>
-                </div>`;
-        }
-        else if (act === "go_escape") { renderScreen("stage4"); }
-        else if (act === "win_game") { renderScreen("win"); }
-        else if (act === "restart") { renderScreen("intro"); }
-    }
-
-    function rotateScrew(idx) {
-        screwRotations[idx] += 90;
-        let sc = document.getElementById("sc" + (idx + 1));
-        sc.style.transform = `rotate(${screwRotations[idx]}deg)`;
-        triggerScreenShake();
-        if(screwRotations[idx] >= 270) {
-            sc.style.opacity = "0";
-            sc.style.pointerEvents = "none";
-            if(screwRotations[0] >= 270 && screwRotations[1] >= 270) {
-                renderScreen("stage2");
-            }
+        if (userSeq.length === sequence.length) {
+            document.getElementById("statusText").textContent = "SİSTEM HACKLENDİ!";
+            createParticles(canvas.width/2, canvas.height/2, "#22c55e");
+            setTimeout(nextStage, 1200);
         }
     }
 
-    function pressCombo(idx) {
-        if(idx === comboStep) {
-            document.getElementById("k" + comboStep).classList.remove("active");
-            triggerScreenShake();
-            comboStep++;
-            if(comboStep < 3) {
-                document.getElementById("k" + comboStep).classList.add("active");
-            } else {
-                renderScreen("stage2");
-            }
-        }
-    }
-
-    function shootTarget(el) {
-        triggerScreenShake();
-        el.style.display = "none";
-        enemiesLeft--;
-        if(enemiesLeft === 0) renderScreen("stage3");
-    }
-
-    let chargeVal = 0, chargeInt;
-    function startCharge() {
-        chargeVal = 0;
-        chargeInt = setInterval(() => {
-            if(chargeVal < 100) {
-                chargeVal += 5;
-                document.getElementById("c-fill").style.width = chargeVal + "%";
-            }
-        }, 25);
-    }
-    function releaseCharge() {
-        clearInterval(chargeInt);
-        if(chargeVal >= 80) {
-            triggerScreenShake();
-            renderScreen("win");
-        } else {
-            chargeVal = 0;
-            document.getElementById("c-fill").style.width = "0%";
-        }
-    }
-
-    renderScreen("intro");
+    // Oyun Döngüsünü Başlat
+    drawGame();
 </script>
 
 </body>
